@@ -2,6 +2,7 @@ import numpy as np
 from ROOT import TTree, TFile 
 import time 
 from array import array
+import sys, os
 
 def isMuon( event, index ):
     return ( event._lFlavor[index] == 1 )
@@ -69,16 +70,17 @@ def isNonprompt( event, index ):
     return True 
 
 
-if __name__ == '__main__' :
-    
+def produceFlatTuple( input_file_name):
+ 
     begin_time = time.perf_counter()
 
     #read original tree 
-    original_file = TFile( 'noskim.root' )
+    original_file = TFile( input_file_name )
     original_tree = original_file.Get( 'blackJackAndHookers/blackJackAndHookersTree' )
     
     #new flat tree 
-    flat_file = TFile( 'flatTuple.root', 'RECREATE' )
+    new_file_name = 'flat_' + input_file_name.replace( os.path.sep, '' )
+    flat_file = TFile( new_file_name , 'RECREATE' )
     flat_tree = TTree( 'muonTree', 'muonTree' )
 
     max_jet_size = 100
@@ -140,3 +142,9 @@ if __name__ == '__main__' :
 
     end_time = time.perf_counter()
     print('Elapsed time = {} s'.format( end_time - begin_time ) )
+
+
+if __name__ == '__main__':
+    input_files = sys.argv[1:] 
+    for f in input_files:
+        produceFlatTuple( f )
